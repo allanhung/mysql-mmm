@@ -168,6 +168,10 @@ sub _execute($$$) {
 	my $config_file		= $main::agent->config_file;
 	$params = '' unless defined($params);
 
+	if ($params !~ /^[\w\. \:\-]*$/) {
+		_exit_error("ERROR: Invalid Parameter");
+	}
+
 	DEBUG "Executing $path $config_file $params";
 	my $res = `$path $config_file $params 2>&1`;
 

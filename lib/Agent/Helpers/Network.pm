@@ -33,6 +33,10 @@ sub check_ip($$) {
 	my $if = shift;
 	my $ip = shift;
 
+	if ($ip !~ /^[\d\.]*$/) {
+		_exit_error("ERROR: Invalid IP Address");
+	}
+
 	my $output;
 	if ($OSNAME eq 'linux') {
 		$output = `/sbin/ip addr show dev $if`;
@@ -64,6 +68,10 @@ Add IP $ip to the interface $if.
 sub add_ip($$) {
 	my $if = shift;
 	my $ip = shift;
+
+	if ($ip !~ /^[\d\.]*$/) {
+		_exit_error("ERROR: Invalid IP Address");
+	}
 
 	my $output;
 	if ($OSNAME eq 'linux') {
@@ -101,6 +109,10 @@ sub clear_ip($$) {
 	my $if = shift;
 	my $ip = shift;
 
+	if ($ip !~ /^[\d\.]*$/) {
+		_exit_error("ERROR: Invalid IP Address");
+	}
+
 	my $output;
 	if ($OSNAME eq 'linux') {
 		$output = `/sbin/ip addr del $ip/32 dev $if`;
@@ -130,6 +142,9 @@ sub send_arp($$) {
 	my $if = shift;
 	my $ip = shift;
 
+	if ($ip !~ /^[\d\.]*$/) {
+		_exit_error("ERROR: Invalid IP Address");
+	}
 
 	if ($OSNAME eq 'linux' || $OSNAME eq 'freebsd') {
 		my $mac = '';

@@ -59,7 +59,7 @@ sub from_string($$) {
 	my $class	= shift;
 	my $string	= shift;
 
-	if (my ($name, $ip) = $string =~ /(.*)\((.*)\)/) {
+	if (my ($name, $ip) = $string =~ /^([\w_\.\-]+)\(([\d\.]+)\)$/) {
 		return $class->new(name => $name, ip => $ip);
 	}
 	return undef;

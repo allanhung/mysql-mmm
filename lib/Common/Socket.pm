@@ -80,6 +80,7 @@ sub create_sender($$$) {
 			SSL_cert_file	=> $main::config->{'socket'}->{cert_file},
 			SSL_key_file	=> $main::config->{'socket'}->{key_file},
 			SSL_ca_file		=> $main::config->{'socket'}->{ca_file},
+			SSL_verify_mode => 0x03 # SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 		);
 	}
 
