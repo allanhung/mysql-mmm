@@ -19,17 +19,18 @@ use DBI;
 
 =over 4
 
-=item check_ip($if, $ip)
+=item check_ip($if, $ip, $eni)
 
 Check if the IP $ip is configured on interface $if.
 
 =cut
 
-sub check_ip($$) {
+sub check_ip($$$) {
 	my $if	= shift;
 	my $ip	= shift;
+	my $eni = shift;
 	
-	if (MMM::Agent::Helpers::Network::check_ip($if, $ip)) {
+	if (MMM::Agent::Helpers::Network::check_ip($if, $ip, $eni)) {
 		_exit_ok('IP address is configured');
 	}
 
@@ -37,22 +38,23 @@ sub check_ip($$) {
 }
 
 
-=item configure_ip($if, $ip)
+=item configure_ip($if, $ip, $eni)
 
 Check if the IP $ip is configured on interface $if. If not, configure it and
 send arp requests to notify other hosts.
 
 =cut
 
-sub configure_ip($$) {
+sub configure_ip($$$) {
 	my $if	= shift;
 	my $ip	= shift;
+	my $eni	= shift;
 	
-	if (MMM::Agent::Helpers::Network::check_ip($if, $ip)) {
+	if (MMM::Agent::Helpers::Network::check_ip($if, $ip, $eni)) {
 		_exit_ok('IP address is configured');
 	}
 
-	if (!MMM::Agent::Helpers::Network::add_ip($if, $ip)) {
+	if (!MMM::Agent::Helpers::Network::add_ip($if, $ip, $eni)) {
 		_exit_error("Could not configure ip adress $ip on interface $if!");
 	}
 	MMM::Agent::Helpers::Network::send_arp($if, $ip);
@@ -60,21 +62,22 @@ sub configure_ip($$) {
 }
 
 
-=item clear_ip($if, $ip)
+=item clear_ip($if, $ip, $eni)
 
 Remove the IP address $ip from interface $if.
 
 =cut
 
-sub clear_ip($$) {
+sub clear_ip($$$) {
 	my $if	= shift;
 	my $ip	= shift;
+	my $eni = shift;
 	
-	if (!MMM::Agent::Helpers::Network::check_ip($if, $ip)) {
+	if (!MMM::Agent::Helpers::Network::check_ip($if, $ip, $eni)) {
 		_exit_ok('IP address is not configured');
 	}
 
-	MMM::Agent::Helpers::Network::clear_ip($if, $ip);
+	MMM::Agent::Helpers::Network::clear_ip($if, $ip, $eni);
 	_exit_ok();
 }
 

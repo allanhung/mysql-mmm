@@ -31,6 +31,7 @@ struct 'MMM::Agent::Agent' => {
 	ip					=> '$',
 	port				=> '$',
 	interface			=> '$',
+	eni     			=> '$',
 	mode				=> '$',
 	mysql_port			=> '$',
 	mysql_user			=> '$',
@@ -140,7 +141,7 @@ CONNECT: {
 	foreach my $role (keys(%{$main::config->{role}})) {
 		my $role_info = $main::config->{role}->{$role};
 		foreach my $ip (@{$role_info->{ips}}) {
-			my $res = MMM::Agent::Helpers::check_ip($self->interface, $ip);
+			my $res = MMM::Agent::Helpers::check_ip($self->interface, $ip, $self->eni);
 			my $ret = $? >> 8;
 			return "ERROR: Could not check if IP is configured: $res" if ($ret == 255);
 			next unless ($ret == 0);
@@ -171,7 +172,7 @@ sub cmd_clear_bad_roles($) {
 				last;
 			}
 			next if ($role_valid);
-			my $res = MMM::Agent::Helpers::check_ip($self->interface, $ip);
+			my $res = MMM::Agent::Helpers::check_ip($self->interface, $ip, $self->eni);
 			my $ret = $? >> 8;
 			return "ERROR: Could not check if IP is configured: $res" if ($ret == 255);
 			next if ($ret == 1);
@@ -266,6 +267,7 @@ sub from_config($%) {
 	$self->ip				($host->{ip});
 	$self->port				($host->{agent_port});
 	$self->interface		($host->{cluster_interface});
+	$self->eni      		($host->{eni});
 	$self->mode				($host->{mode});
 	$self->mysql_port		($host->{mysql_port});
 	$self->mysql_user		($host->{agent_user});

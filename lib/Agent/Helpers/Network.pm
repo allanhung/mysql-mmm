@@ -23,7 +23,7 @@ MMM::Agent::Helpers::Network - network related functions for the B<mmm_agentd> h
 
 =over 4
 
-=item check_ip($if, $ip)
+=item check_ip($if, $ip, $eni)
 
 Check if the IP $ip is configured on interface $if. Returns 0 if not, 1 otherwise.
 
@@ -32,15 +32,21 @@ Check if the IP $ip is configured on interface $if. Returns 0 if not, 1 otherwis
 sub check_ip($$) {
 	my $if = shift;
 	my $ip = shift;
+	my $eni = shift;
 
 	if ($ip !~ /^[\d\.]*$/) {
 		_exit_error("ERROR: Invalid IP Address");
 	}
 
 	my $output;
+	my $output_aws;
 	if ($OSNAME eq 'linux') {
 		$output = `/sbin/ip addr show dev $if`;
 		_exit_error("Could not check if ip $ip is configured on $if: $output") if ($? >> 8 == 255);
+		if ($eni ne 'null') {
+			$output_aws = `aws ec2 describe-network-interfaces --network-interface-ids $eni |grep PrivateIpAddress`;
+			_exit_error("Could not check if ip $ip is configured on aws $eni: $output") if ($? >> 0);
+		}
 	}
 	elsif ($OSNAME eq 'solaris') {
 		# FIXME $if is not used here
@@ -56,10 +62,15 @@ sub check_ip($$) {
 	}
 
 	return ($output =~ /\D+$ip\D+/) ? 1 : 0;
+	if ($eni eq 'null') {
+		return ($output =~ /\D+$ip\D+/) ? 1 : 0;
+	} else {
+		return (($output =~ /\D+$ip\D+/) && ($output_aws =~ /\D+$ip\D+/)) ? 1 : 0;
+	} 
 }
 
 
-=item add_ip($if, $ip)
+=item add_ip($if, $ip, $eni)
 
 Add IP $ip to the interface $if.
 
@@ -68,6 +79,7 @@ Add IP $ip to the interface $if.
 sub add_ip($$) {
 	my $if = shift;
 	my $ip = shift;
+	my $eni = shift;
 
 	if ($ip !~ /^[\d\.]*$/) {
 		_exit_error("ERROR: Invalid IP Address");
@@ -77,6 +89,10 @@ sub add_ip($$) {
 	if ($OSNAME eq 'linux') {
 		$output = `/sbin/ip addr add $ip/32 dev $if`;
 		_exit_error("Could not configure ip $ip on interface $if: $output") if ($? >> 8 == 255);
+		if ($eni ne 'null') {
+			$output = `aws ec2 assign-private-ip-addresses --network-interface-id $eni --private-ip-addresses $ip 2>&1`;
+			_exit_error("Could not configure ip $ip on aws interface $eni: $output") if ($? >> 0);
+		}
 	}
 	elsif ($OSNAME eq 'solaris') {
 		$output = `/usr/sbin/ifconfig $if addif $ip`;
@@ -95,11 +111,11 @@ sub add_ip($$) {
 	else {
 		_exit_error("ERROR: Unsupported platform!");
 	}
-	return check_ip($if, $ip);
+	return check_ip($if, $ip, $eni);
 }
 
 
-=item clear_ip($if, $ip)
+=item clear_ip($if, $ip, $eni)
 
 Remove the IP $ip from the interface $if.
 
@@ -108,6 +124,7 @@ Remove the IP $ip from the interface $if.
 sub clear_ip($$) {
 	my $if = shift;
 	my $ip = shift;
+	my $eni = shift;
 
 	if ($ip !~ /^[\d\.]*$/) {
 		_exit_error("ERROR: Invalid IP Address");
@@ -117,6 +134,10 @@ sub clear_ip($$) {
 	if ($OSNAME eq 'linux') {
 		$output = `/sbin/ip addr del $ip/32 dev $if`;
 		_exit_error("Could not remove ip $ip from interface $if: $output") if ($? >> 8 == 255);
+		if ($eni ne 'null') {
+			$output = `aws ec2 unassign-private-ip-addresses --network-interface-id $eni --private-ip-addresses $ip 2>&1`;
+			_exit_error("Could not remove ip $ip on aws interface $eni: $output") if ($? >> 0);
+		}
 	}
 	elsif ($OSNAME eq 'solaris') {
 		$output = `/usr/sbin/ifconfig $if removeif $ip`;

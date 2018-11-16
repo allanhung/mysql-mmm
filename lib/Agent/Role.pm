@@ -37,9 +37,9 @@ sub check($) {
 		}
 	}
 
-	$res = MMM::Agent::Helpers::configure_ip($main::agent->interface, $self->ip);
+	$res = MMM::Agent::Helpers::configure_ip($main::agent->interface, $self->ip, $main::agent->eni);
 	if (!defined($res) || $res !~ /^OK/) {
-		FATAL sprintf("Couldn't configure IP '%s' on interface '%s': %s", $self->ip, $main::agent->interface, defined($res) ? $res : 'undef');
+		FATAL sprintf("Couldn't configure IP '%s' on interface '%s': %s", $self->ip, $main::agent->interface, $main::agent->eni, defined($res) ? $res : 'undef');
 		return;
 	}
 }
@@ -67,7 +67,7 @@ sub add($) {
 		}
 	}
 
-	$res = MMM::Agent::Helpers::configure_ip($main::agent->interface, $self->ip);
+	$res = MMM::Agent::Helpers::configure_ip($main::agent->interface, $self->ip, $main::agent->eni);
 	if (!defined($res) || $res !~ /^OK/) {
 		FATAL sprintf("Couldn't configure IP '%s' on interface '%s': %s", $self->ip, $main::agent->interface, defined($res) ? $res : 'undef');
 		return;
@@ -91,7 +91,7 @@ sub del($) {
 		}
 	}
 
-	$res = MMM::Agent::Helpers::clear_ip($main::agent->interface, $self->ip);
+	$res = MMM::Agent::Helpers::clear_ip($main::agent->interface, $self->ip, $main::agent->eni);
 	if (!defined($res) || $res !~ /^OK/) {
 		FATAL sprintf("Couldn't clear IP '%s' from interface '%s': %s", $self->ip, $main::agent->interface, defined($res) ? $res : 'undef');
 	}

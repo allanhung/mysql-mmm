@@ -63,6 +63,7 @@ our $RULESET = {
 		'ip'					=> { 'required' => ['AGENT', 'MONITOR', 'TOOLS'] },
 		'mode'					=> { 'required' => ['AGENT', 'MONITOR'], 'values' => ['master', 'slave'] },
 		'peer'					=> { 'deprequired' => { 'mode' => 'master' }, 'refvalues' => 'host' },
+		'eni'   				=> { 'default' => 'null' },
 
 		'pid_path'				=> { 'required' => ['AGENT'] },
 		'bin_path'				=> { 'required' => ['AGENT'] },

@@ -18,7 +18,7 @@ MMM::Agent::Helpers - an interface to helper programs for B<mmm_agentd>
 
 =over 4
 
-=item check_ip($if, $ip)
+=item check_ip($if, $ip, $eni)
 
 Check if the IP $ip is configured on interface $if.
 
@@ -26,14 +26,15 @@ Calls B<bin/agent/check_ip>.
 
 =cut
 
-sub check_ip($$) {
-	my $if = shift;
-	my $ip = shift;
-	return _execute('check_ip', "$if $ip");
+sub check_ip($$$) {
+	my $if  = shift;
+	my $ip  = shift;
+	my $eni = shift;
+	return _execute('check_ip', "$if $ip $eni");
 }
 
 
-=item configure_ip($if, $ip)
+=item configure_ip($if, $ip, $eni)
 
 Check if the IP $ip is configured on interface $if. If not, configure it and
 send arp requests to notify other hosts.
@@ -42,14 +43,15 @@ Calls B<bin/agent/configure_ip>.
 
 =cut
 
-sub configure_ip($$) {
-	my $if = shift;
-	my $ip = shift;
-	return _execute('configure_ip', "$if $ip");
+sub configure_ip($$$) {
+	my $if  = shift;
+	my $ip  = shift;
+	my $eni = shift;
+	return _execute('configure_ip', "$if $ip $eni");
 }
 
 
-=item clear_ip($if, $ip)
+=item clear_ip($if, $ip, $eni)
 
 Remove the IP address $ip from interface $if.
 
@@ -57,10 +59,11 @@ Calls B<bin/agent/clear_ip>.
 
 =cut
 
-sub clear_ip($$) {
-	my $if = shift;
-	my $ip = shift;
-	return _execute('clear_ip', "$if $ip");
+sub clear_ip($$$) {
+	my $if  = shift;
+	my $ip  = shift;
+	my $eni = shift;
+	return _execute('clear_ip', "$if $ip $eni");
 }
 
 
