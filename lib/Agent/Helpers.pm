@@ -168,8 +168,8 @@ sub _execute($$$) {
 	my $config_file		= $main::agent->config_file;
 	$params = '' unless defined($params);
 
-	DEBUG "Executing $path $params";
-	my $res = `$path $config_file $params`;
+	DEBUG "Executing $path $config_file $params";
+	my $res = `$path $config_file $params 2>&1`;
 
 	unless ($return_all) {
 		my @lines = split /\n/, $res;

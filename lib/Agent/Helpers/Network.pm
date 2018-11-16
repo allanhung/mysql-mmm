@@ -133,7 +133,7 @@ sub send_arp($$) {
 
 	if ($OSNAME eq 'linux' || $OSNAME eq 'freebsd') {
 		my $mac = '';
-		if ($Net::ARP::VERSION < 1.0) {
+		if ($Net::ARP::VERSION =~ /^0/) { # VERSION < 1.0 check that even works for 1.0.8, etc.
 			Net::ARP::get_mac($if, $mac);
 		}
 		else {
