@@ -4,7 +4,7 @@ INSTALLDIR = installvendorlib
 endif
 
 MODULEDIR = $(DESTDIR)$(shell eval "`perl -V:${INSTALLDIR}`"; echo "$$${INSTALLDIR}")/MMM
-BINDIR    = $(DESTDIR)/usr/lib/mysql-mmm
+BINDIR    = $(DESTDIR)/usr/libexec/mysql-mmm
 SBINDIR   = $(DESTDIR)/usr/sbin
 LOGDIR    = $(DESTDIR)/var/log/mysql-mmm
 ETCDIR    = $(DESTDIR)/etc
