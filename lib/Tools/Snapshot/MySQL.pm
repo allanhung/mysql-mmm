@@ -27,9 +27,11 @@ sub unlock_tables($) {
 	return $dbh->do('UNLOCK TABLES');
 }
 
-sub get_pos_info($$) {
+sub get_pos_info($$$) {
 	my $dbh = shift;
 	my $pos_info = shift;
+	my $mmm_channel = shift;
+        my $cmd_slave_satatus;
 	
 	# Get master status info
 	my $res = $dbh->selectrow_hashref('SHOW MASTER STATUS');
@@ -37,7 +39,12 @@ sub get_pos_info($$) {
 	$pos_info->{master} = $res;
 
 	# Get slave status info
-	$res = $dbh->selectrow_hashref('SHOW SLAVE STATUS');
+	if ($mmm_channel eq 'null') {
+		$cmd_slave_status = 'SHOW SLAVE STATUS';
+	} else {
+		$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+	}
+	$res = $dbh->selectrow_hashref($cmd_slave_status);
 	return "ERROR: Can't get slave status information! Error: " . $dbh->errstr if (defined($dbh->err));
 	$res = {} unless ($res);
 	$pos_info->{slave} = $res;

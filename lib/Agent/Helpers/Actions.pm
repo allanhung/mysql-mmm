@@ -252,6 +252,8 @@ sub sync_with_master() {
 	my $peer = $main::config->{host}->{$this}->{peer};
 	_exit_error('No peer defined') unless defined($peer);
 
+        my $mmm_channel = $main::config->{host}->{$this}->{mmm_channel};
+        my $cmd_slave_status;
 	my ($peer_host, $peer_port, $peer_user, $peer_password)	= _get_connection_info($peer);
 	_exit_error('No peer connection info') unless defined($peer_host);
 
@@ -274,7 +276,12 @@ sub sync_with_master() {
 		$peer_dbh->disconnect;
 	} 
 	unless (defined($wait_log)) {
-		my $slave_status = $this_dbh->selectrow_hashref('SHOW SLAVE STATUS');
+		if ($mmm_channel eq 'null') {
+			$cmd_slave_status = 'SHOW SLAVE STATUS';
+		} else {
+			$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+		}
+		my $slave_status = $this_dbh->selectrow_hashref($cmd_slave_status);
 		_exit_error('SQL Query Error: ' . $this_dbh->errstr) unless defined($slave_status);
 		$wait_log = $slave_status->{Master_Log_File};
 		$wait_pos = $slave_status->{Read_Master_Log_Pos};
@@ -305,6 +312,8 @@ sub set_active_master($) {
 
 	_exit_error('New master is equal to local host!?') if ($this eq $new_peer);
 
+        my $mmm_channel = $main::config->{host}->{$this}->{mmm_channel};
+	my $cmd_slave_status;
 	# Get local connection info
 	my ($this_host, $this_port, $this_user, $this_password)	= _get_connection_info($this);
 	_exit_error("No connection info for local host '$this_host'") unless defined($this_host);
@@ -318,7 +327,12 @@ sub set_active_master($) {
 	_exit_error("Can't connect to MySQL (host = $this_host:$this_port, user = $this_user)! " . $DBI::errstr) unless ($this_dbh);
 
 	# Get slave info
-	my $slave_status = $this_dbh->selectrow_hashref('SHOW SLAVE STATUS');
+	if ($mmm_channel eq 'null') {
+		$cmd_slave_status = 'SHOW SLAVE STATUS';
+	} else {
+		$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+	}
+	my $slave_status = $this_dbh->selectrow_hashref($cmd_slave_status);
 	_exit_error('SQL Query Error: ' . $this_dbh->errstr) unless defined($slave_status);
 
 	my $wait_log	= $slave_status->{Master_Log_File};

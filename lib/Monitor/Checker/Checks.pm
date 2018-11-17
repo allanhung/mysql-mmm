@@ -156,6 +156,8 @@ Check the replication backlog on host $host.
 sub rep_backlog($$) {
 	my $timeout	= shift;
 	my $host	= shift;
+        my $mmm_channel = $main::config->{host}->{$host}->{mmm_channel};
+        my $cmd_slave_status;
 
 	my ($peer_host, $peer_port, $peer_user, $peer_password) = _get_connection_info($host);
 	return "ERROR: Invalid host '$host'" unless ($peer_host);
@@ -180,7 +182,12 @@ sub rep_backlog($$) {
 		}
 	
 		# Check server (replication backlog)
-		my $sth = $dbh->prepare('SHOW SLAVE STATUS');
+		if ($mmm_channel eq 'null') {
+			$cmd_slave_status = 'SHOW SLAVE STATUS';
+		} else {
+			$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+		}
+		my $sth = $dbh->prepare($cmd_slave_status);
 		my $res = $sth->execute;
 
 		if ($dbh->err) {
@@ -239,6 +246,8 @@ Check if the mysql slave threads on host $host are running.
 sub rep_threads($$) {
 	my $timeout	= shift;
 	my $host	= shift;
+        my $mmm_channel = $main::config->{host}->{$host}->{mmm_channel};
+        my $cmd_slave_status;
 
 	my ($peer_host, $peer_port, $peer_user, $peer_password) = _get_connection_info($host);
 	return "ERROR: Invalid host '$host'" unless ($peer_host);
@@ -260,7 +269,12 @@ sub rep_threads($$) {
 		return "UNKNOWN: Connect error (host = $peer_host:$peer_port, user = $peer_user)! " . $DBI::errstr unless ($dbh);
 	
 		# Check server (replication backlog)
-		my $sth = $dbh->prepare('SHOW SLAVE STATUS');
+		if ($mmm_channel eq 'null') {
+			$cmd_slave_status = 'SHOW SLAVE STATUS';
+		} else {
+			$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+		}
+		my $sth = $dbh->prepare($cmd_slave_status);
 		my $res = $sth->execute;
 
 		if ($dbh->err) {

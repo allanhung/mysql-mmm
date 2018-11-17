@@ -74,6 +74,7 @@ our $RULESET = {
 		'mysql_pidfile'			=> { 'default' => '/var/run/mysqld/mysqld.pid' },
 		'mysql_rcscript'		=> { 'default' => '/etc/init.d/mysql' },
 		'mysql_cnf'				=> { 'default' => '/etc/my.cnf' },
+		'mmm_channel'			=> { 'default' => 'null' },
 
 		'agent_user'			=> { 'required' => ['AGENT'] },
 		'agent_password'		=> { 'required' => ['AGENT'] },

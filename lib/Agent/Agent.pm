@@ -36,6 +36,7 @@ struct 'MMM::Agent::Agent' => {
 	mysql_port			=> '$',
 	mysql_user			=> '$',
 	mysql_password		=> '$',
+	mmm_channel		=> '$',
 	writer_role			=> '$',
 	bin_path			=> '$',
 
@@ -125,6 +126,7 @@ sub cmd_get_system_status($) {
 	my $master_ip	= '';
 
     my $dbh;
+    my $cmd_slave_status;
 CONNECT: {
     DEBUG "Connecting to mysql";
     $dbh   = DBI->connect($dsn, $self->mysql_user, $self->mysql_password, { PrintError => 0 });
@@ -134,7 +136,12 @@ CONNECT: {
     }
 }
 
-    my $slave_status = $dbh->selectrow_hashref('SHOW SLAVE STATUS');
+    if ($self->mmm_channel eq 'null') {
+        $cmd_slave_status = 'SHOW SLAVE STATUS';
+    } else {
+        $cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" + $self->mmm_channel + "'";
+    }
+    my $slave_status = $dbh->selectrow_hashref($cmd_slave_status);
 	$master_ip = $slave_status->{Master_Host} if (defined($slave_status));
 
 	my @roles;
@@ -272,6 +279,7 @@ sub from_config($%) {
 	$self->mysql_port		($host->{mysql_port});
 	$self->mysql_user		($host->{agent_user});
 	$self->mysql_password	($host->{agent_password});
+	$self->mmm_channel	($host->{mmm_channel});
 	$self->writer_role		($config->{active_master_role});
 	$self->bin_path			($host->{bin_path});
 }

@@ -222,9 +222,12 @@ sub _connect($$$$) {
 
 sub get_master_host($) {
 	my $host_name = shift;
+	my $mmm_channel = shift;
+        my $cmd_slave_satatus;
 
 	# Get connection information
 	my ($host, $port, $user, $password)	= _get_connection_info($host_name);
+        my $mmm_channel = $main::config->{host}->{$host}->{mmm_channel};
 	unless (defined($host)) {
 		ERROR "No connection info for host '$host_name'";
 		return undef;
@@ -238,7 +241,12 @@ sub get_master_host($) {
 	}
 
 	# Get slave status
-	my $res = $dbh->selectrow_hashref('SHOW SLAVE STATUS');
+	if ($mmm_channel eq 'null') {
+		$cmd_slave_status = 'SHOW SLAVE STATUS';
+	} else {
+		$cmd_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $mmm_channel . "'";
+	}
+	my $res = $dbh->selectrow_hashref($cmd_slave_status);
 	return "ERROR: Can't get slave status for host '$host_name'! Error: " . $dbh->errstr unless ($res);
 
 	# Disconnect

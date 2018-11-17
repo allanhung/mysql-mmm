@@ -29,7 +29,7 @@ Check if the IP $ip is configured on interface $if. Returns 0 if not, 1 otherwis
 
 =cut
 
-sub check_ip($$) {
+sub check_ip($$$) {
 	my $if = shift;
 	my $ip = shift;
 	my $eni = shift;
@@ -76,7 +76,7 @@ Add IP $ip to the interface $if.
 
 =cut
 
-sub add_ip($$) {
+sub add_ip($$$) {
 	my $if = shift;
 	my $ip = shift;
 	my $eni = shift;
@@ -121,7 +121,7 @@ Remove the IP $ip from the interface $if.
 
 =cut
 
-sub clear_ip($$) {
+sub clear_ip($$$) {
 	my $if = shift;
 	my $ip = shift;
 	my $eni = shift;

@@ -281,6 +281,9 @@ sub check_master_configuration($) {
 	my $dsn1	= sprintf("DBI:mysql:host=%s;port=%s;mysql_connect_timeout=3", $master1_info->{ip}, $master1_info->{mysql_port});
 	my $dsn2	= sprintf("DBI:mysql:host=%s;port=%s;mysql_connect_timeout=3", $master2_info->{ip}, $master2_info->{mysql_port});
 
+	my $cmd1_slave_status;
+	my $cmd2_slave_status;
+
 	my $eintr	= EINTR;
 
 	my $dbh1;
@@ -305,8 +308,20 @@ CONNECT2: {
 
 
 	# Check replication peers
-	my $slave_status1 = $dbh1->selectrow_hashref('SHOW SLAVE STATUS');
-	my $slave_status2 = $dbh2->selectrow_hashref('SHOW SLAVE STATUS');
+	
+	if ($master1_info->{mmm_channel} eq 'null') {
+		$cmd1_slave_status = 'SHOW SLAVE STATUS';
+	} else {
+		$cmd1_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $master1_info->{mmm_channel} . "'";
+	}
+	if ($master2_info->{mmm_channel} eq 'null') {
+		$cmd2_slave_status = 'SHOW SLAVE STATUS';
+	} else {
+		$cmd2_slave_status = "SHOW SLAVE STATUS FOR CHANNEL '" . $master1_info->{mmm_channel} . "'";
+	}
+
+	my $slave_status1 = $dbh1->selectrow_hashref($cmd1_slave_status);
+	my $slave_status2 = $dbh2->selectrow_hashref($cmd2_slave_status);
 
 	WARN "$master1 is not replicating from $master2" if (!defined($slave_status1) || $slave_status1->{Master_Host} ne $master2_info->{ip});
 	WARN "$master2 is not replicating from $master1" if (!defined($slave_status2) || $slave_status2->{Master_Host} ne $master1_info->{ip});

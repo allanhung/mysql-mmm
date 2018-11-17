@@ -24,6 +24,7 @@ sub create_snapshot {
 	}
 
 	my $host		= $config->{host}->{$this};
+	my $mmm_channel = $host->{mmm_channel};
 	my $dump_dir	= $host->{lvm_mount_dir};
 
 	system ('mkdir', '-p', $dump_dir);
@@ -48,7 +49,7 @@ sub create_snapshot {
 	# Get position info
 	my $pos_info = {};
 	$pos_info->{host} = $config->{this};
-	$res = MMM::Tools::Snapshot::MySQL::get_pos_info($dbh, $pos_info);
+	$res = MMM::Tools::Snapshot::MySQL::get_pos_info($dbh, $pos_info, $mmm_channel);
 	return "ERROR: Can't get position info: $res" unless ($res =~ /^OK/);
 
 	# Create and mount snapshot

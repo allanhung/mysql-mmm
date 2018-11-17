@@ -91,7 +91,7 @@ sub mysql($$) {
 }
 
 
-=item rep_threads($host)
+=item rep_threads($host, $mmm_channel)
 
 Get state of check "rep_threads" on host $host.
 
